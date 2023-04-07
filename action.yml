@@ -12,6 +12,9 @@ inputs:
   wasm:
     description: install wasm tools
     default: "false"
+  pnpm:
+    description: install pnpm tools
+    default: "false"
 
 runs:
   using: 'composite'
@@ -22,6 +25,7 @@ runs:
         ssh-private-key: ${{ inputs.ssh-private-key }}
 
     - uses: emocional/action-pnpm-install@main
+      if: ${{ inputs.pnpm }} != "false"
 
     - uses: awalsh128/cache-apt-pkgs-action@latest
       with:
