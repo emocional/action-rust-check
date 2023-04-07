@@ -1,0 +1,75 @@
+name: rust-check
+description: 'CI for Rust project'
+
+branding:
+  icon: 'credit-card'
+  color: 'blue'
+
+inputs:
+  ssh-private-key:
+    description: ssh
+    default: "false"
+  wasm:
+    description: install wasm tools
+    default: "false"
+  token:
+    description: github token
+    default: ${{ github.token }}
+
+runs:
+  using: 'composite'
+  steps:
+    - uses: webfactory/ssh-agent@v0.7.0
+      if: ${{ input.ssh-private-key }} != "false"
+      with:
+        ssh-private-key: ${{ input.ssh-private-key }}
+
+    - uses: emocional/action-pnpm-install@main
+
+    - uses: awalsh128/cache-apt-pkgs-action@latest
+      with:
+        packages: capnproto
+        version: 1.0
+
+
+    - name: Install Rust
+      uses: actions-rs/toolchain@v1
+      with:
+        profile: minimal
+        toolchain: stable
+        override: true
+        components: rustfmt, clippy
+
+    - name: Install wasm32 target
+      if: ${{ inputs.wasm }} != "false"
+      shell: sh
+      run: rustup target add wasm32-unknown-unknown
+
+    - uses: Swatinem/rust-cache@v2
+      name: Rust cache
+
+    - name: Install wasm-pack
+      if: ${{ inputs.wasm }} != "false"
+      shell: sh
+      run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+
+    - name: Check
+      uses: actions-rs/cargo@v1
+      env:
+        CARGO_NET_GIT_FETCH_WITH_CLI: 'true'
+      with:
+        command: check
+        args: --all --all-features
+
+    - name: Fmt
+      uses: actions-rs/cargo@v1
+      with:
+        command: fmt
+        args: --check --verbose
+
+    - name: Clippy
+      uses: actions-rs/cargo@v1
+      with:
+        command: clippy
+        # TODO: deny warnings
+        args: --all --all-features
