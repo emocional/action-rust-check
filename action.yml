@@ -27,11 +27,11 @@ runs:
     - uses: emocional/action-pnpm-install@main
       if: ${{ inputs.pnpm }} != "false"
 
-    - uses: awalsh128/cache-apt-pkgs-action@latest
-      with:
-        packages: capnproto
-        version: 1.0
-
+    - name: Install mailutils
+      shell: sh
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y capnproto
 
     - name: Install Rust
       uses: actions-rs/toolchain@v1
