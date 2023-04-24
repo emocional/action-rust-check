@@ -21,6 +21,9 @@ inputs:
   capnp:
     description: install capnp
     default: "false"
+  token:
+    description: github token
+    default: ${{ github.token }}
 
 runs:
   using: 'composite'
@@ -65,7 +68,7 @@ runs:
       uses: actions-rs/cargo@v1
       env:
         CARGO_NET_GIT_FETCH_WITH_CLI: 'true'
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ inputs.token }}
       with:
         command: check
         args: --all --all-features
