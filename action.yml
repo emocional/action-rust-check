@@ -65,6 +65,7 @@ runs:
       uses: actions-rs/cargo@v1
       env:
         CARGO_NET_GIT_FETCH_WITH_CLI: 'true'
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         command: check
         args: --all --all-features
